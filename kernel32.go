@@ -29,9 +29,6 @@ var (
 	procSizeofResource             = modkernel32.NewProc("SizeofResource")
 	procLockResource               = modkernel32.NewProc("LockResource")
 	procLoadResource               = modkernel32.NewProc("LoadResource")
-	procGetLastError               = modkernel32.NewProc("GetLastError")
-	procOpenProcess                = modkernel32.NewProc("OpenProcess")
-	procCloseHandle                = modkernel32.NewProc("CloseHandle")
 	procCreateToolhelp32Snapshot   = modkernel32.NewProc("CreateToolhelp32Snapshot")
 	procModule32First              = modkernel32.NewProc("Module32FirstW")
 	procModule32Next               = modkernel32.NewProc("Module32NextW")
@@ -185,30 +182,6 @@ func LoadResource(hModule HMODULE, hResInfo HRSRC) HGLOBAL {
 	}
 
 	return HGLOBAL(ret)
-}
-
-func GetLastError() uint32 {
-	ret, _, _ := procGetLastError.Call()
-	return uint32(ret)
-}
-
-func OpenProcess(desiredAccess uint32, inheritHandle bool, processId uint32) HANDLE {
-	inherit := 0
-	if inheritHandle {
-		inherit = 1
-	}
-
-	ret, _, _ := procOpenProcess.Call(
-		uintptr(desiredAccess),
-		uintptr(inherit),
-		uintptr(processId))
-	return HANDLE(ret)
-}
-
-func CloseHandle(object HANDLE) bool {
-	ret, _, _ := procCloseHandle.Call(
-		uintptr(object))
-	return ret != 0
 }
 
 func CreateToolhelp32Snapshot(flags, processId uint32) HANDLE {
